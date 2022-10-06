@@ -6,6 +6,7 @@
 #include <fstream>
 #include <limits>
 #include <vector>
+#include <list>
 
 #define SIMPLEINI_VERSION_MAJOR 1
 #define SIMPLEINI_VERSION_MINOR 0
@@ -257,24 +258,33 @@ namespace utils
         return oss.str();
     }
 
-    template <
-        template <typename, typename> class Container,
-        typename T,
-        typename Alloc = std::allocator<T>
-    >
-    std::string to_raw_value(const Container<T, Alloc>& container)
+
+    template <typename T, typename Iter>
+    std::string to_raw_value(Iter begin, Iter end)
     {
         std::ostringstream oss;
         oss << '[';
         bool sep { false };
-        for (const auto& v : container)
+        for (auto i = begin; i != end; ++i)
         {
             if (sep) oss << ',';
             sep = true;
-            oss << to_raw_value<T>(v);
+            oss << to_raw_value<T>(*i);
         }
         oss << ']';
         return oss.str();
+    }
+
+    template <typename T>
+    std::string to_raw_value(const std::vector<T>& vec)
+    {
+        return to_raw_value<T>(vec.begin(), vec.end());
+    }
+
+    template <typename T>
+    std::string to_raw_value(const std::list<T>& vec)
+    {
+        return to_raw_value<T>(vec.begin(), vec.end());
     }
 
     template <typename T>
